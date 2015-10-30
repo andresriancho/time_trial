@@ -23,10 +23,10 @@ def run_http_trial_job(trial):
 
     print("Running %s with arguments:" % CPP_HTTP_TIMING_EXECUTABLE)
     for arg in cmd[1:]:
-        print('%s' % arg)
+        print('    %r' % arg)
     output = subprocess.check_output(cmd)
 
     print('Trial output:')
     print(output)
-    
+
     return output
