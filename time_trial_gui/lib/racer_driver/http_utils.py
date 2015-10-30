@@ -25,9 +25,5 @@ def parse_request(request_text):
     if request.error_code:
         raise ParseException(request.error_message)
 
-    # request.headers is still a message object
-    # items returns a list of tuples, but we need actual header k,v pairs:
-    header_list = [x[0] + ": " + x[1] for x in request.headers.items()]
-
     return (request.command, request.path, request.request_version,
-            request.request_body, header_list)
+            request.request_body, request.headers.items())
