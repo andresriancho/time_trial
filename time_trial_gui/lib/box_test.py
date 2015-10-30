@@ -3,14 +3,12 @@ __author__ = 'daniel'
 import numpy
 
 
-
 class BoxTest:
     def __init__(self, data_x, data_y, i, j):
         self.data_x = data_x
         self.data_y = data_y
         self.i = i
         self.j = j
-
 
     def perform(self):
         # compute quantiles. Not using ranges since they are only overhead.
@@ -33,7 +31,7 @@ class BoxTest:
     def y_box(self):
         return [self.y_q_i, self.y_q_j]
 
-    def overlap (self, a_lower, a_upper, b_lower, b_upper):
+    def overlap(self, a_lower, a_upper, b_lower, b_upper):
         return a_upper > b_lower and a_lower < b_upper
 
 

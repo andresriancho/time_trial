@@ -1,11 +1,11 @@
 __author__ = 'daniel'
 
+
 class TrialJob:
     def __init__(self):
         self.real_time = 1
         self.core_affinity = 1
         self.reps = 1
-
 
 
 class EchoTrialJob(TrialJob):

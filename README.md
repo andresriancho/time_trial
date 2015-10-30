@@ -10,7 +10,10 @@ cd time_trial_gui
 sudo apt-get install libfreetype6-dev python3-pyqt4
 pip3 install -r requirements.txt
 ```
-* A locally running redis server.
+* A locally running redis server, which can be easily achieved using `docker`:
+```bash
+docker run --name time-trial-redis -d -p6379:6379 redis
+```
 
 ## Running time_trial
 

@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class PercentileFilter:
 
     def __init__(self):

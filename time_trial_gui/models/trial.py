@@ -5,8 +5,6 @@ from sqlalchemy.orm import  relationship, deferred
 from lib.base import Base
 from models.racer import Racer
 
-from PyQt4 import QtCore
-
 
 class Trial(Base):
     __tablename__ = "trials"
@@ -34,6 +32,7 @@ class Trial(Base):
 
     experiment_id = Column(Integer, ForeignKey('experiments.id'))
     experiment = relationship("Experiment", primaryjoin="Trial.experiment_id==Experiment.id")
+
 
 class EchoTrial(Trial):
     __tablename__ = 'echo_trials'

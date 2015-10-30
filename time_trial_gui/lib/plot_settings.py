@@ -12,6 +12,3 @@ class PlotSettings:
         self.y_maximum = None
 
         self.x_scaling = 1
-
-
-        pass

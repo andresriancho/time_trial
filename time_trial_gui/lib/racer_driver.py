@@ -1,6 +1,7 @@
+import subprocess
+
 from http.server import BaseHTTPRequestHandler
-from io import StringIO, BytesIO
-import os
+from io import BytesIO
 
 __author__ = 'daniel'
 
@@ -8,11 +9,9 @@ CPP_HTTP_TIMING_EXECUTABLE = '../racer/bin/run_http_timing_client'
 CPP_ECHO_TIMING_EXECUTABLE = "../racer/bin/run_timing_client"
 
 
-import subprocess
-
-
 class ParseException(Exception):
     pass
+
 
 class HTTPRequest(BaseHTTPRequestHandler):
     def __init__(self, request_text):
@@ -26,6 +25,7 @@ class HTTPRequest(BaseHTTPRequestHandler):
         self.error_code = code
         self.error_message = message
 
+
 def parse_request(request_text):
     request = HTTPRequest(request_text)
 
@@ -36,9 +36,8 @@ def parse_request(request_text):
     # items returns a list of tuples, but we need actual header k,v pairs:
     header_list = [x[0] + ": " + x[1] for x in request.headers.items()]
 
-    return (request.command, request.path, request.request_version, request.request_body, header_list )
-
-
+    return (request.command, request.path, request.request_version,
+            request.request_body, header_list)
 
 
 def execute_trial(trial):
@@ -50,7 +49,6 @@ def execute_trial(trial):
 
         try:
             verb, path, version, body, headers = parse_request(bytes(trial.request,"iso-8859-1"))
-
         except ParseException as e:
             print("unable to parse request: %s" % e)
 
