@@ -1,6 +1,7 @@
 import unittest
 import uuid
 
+from itertools import repeat
 from mock import Mock, call
 
 from models.trial import XRuntimeTrial
@@ -108,3 +109,28 @@ class TestTimeAttack(unittest.TestCase):
         self.assertEqual(new_char_mock.call_args_list,
                          [call('c'), call('2'), call('3'), call('4')])
         self.assertEquals(timed_token, UNKNOWN_TOKEN)
+
+    def test_all_responses_equal(self):
+
+        #log_mock = mock.Mock()
+        log_mock = print
+        new_char_mock = Mock()
+
+        trial = XRuntimeTrial()
+        trial.request_url = URL
+        trial.request = HTTP_REQUEST
+
+        time_attack = TimeAttack(trial=trial,
+                                 accepted_charset=ACCEPTED_CHARSET,
+                                 valid_token=VALID_TOKEN,
+                                 start_after=2,
+                                 on_log_message=log_mock,
+                                 on_new_char_found=new_char_mock,
+                                 bruteforce_last_chars=False)
+
+        time_attack.enqueue_job = Mock(side_effect=repeat(ShorterJobResult()))
+        time_attack.sleep = lambda x: None
+        timed_token = time_attack.run()
+
+        self.assertEqual(new_char_mock.call_args_list, [])
+        self.assertEquals(timed_token, VALID_TOKEN[:2])

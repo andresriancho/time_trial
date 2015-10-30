@@ -117,6 +117,8 @@ class TimeAttack(object):
                 if self.guessed_one_char:
                     # We only want to guess one character, if we get here
                     # for a second time (in a row) we're going to return
+                    self.log_message('Had no luck guessing the previous'
+                                     ' character, stopping the timing attack.')
                     return self.known_chars[:-1]
 
                 # Guess and continue
