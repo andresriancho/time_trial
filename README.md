@@ -4,14 +4,17 @@ The source code for the time trial GUI is in the `time_trial` folder.
 ## Requirements
 
 * Python 3.0
-* The packages listed in the `requirements.txt` file which can be installed  via `pip3 install -r requirements.txt`
+* The packages listed in the `requirements.txt` file:
+```bash
+cd time_trial_gui
+sudo apt-get install libfreetype6-dev python3-pyqt4
+pip3 install -r requirements.txt
+```
 * A locally running redis server.
-
 
 ## Running time_trial
 
 * Execute `time_trial.py`.
-
 
 # Racer
 The host executing the trials must have both the C++ code and the time trial
