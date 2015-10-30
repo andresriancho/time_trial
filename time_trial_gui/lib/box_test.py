@@ -1,7 +1,5 @@
 __author__ = 'daniel'
 
-import numpy
-
 
 class BoxTest:
     def __init__(self, data_x, data_y, i, j):
@@ -16,10 +14,6 @@ class BoxTest:
         self.x_q_j = self.data_x.quantile(self.j)
         self.y_q_i = self.data_y.quantile(self.i)
         self.y_q_j = self.data_y.quantile(self.j)
-        print(self.x_q_i)
-        print(self.x_q_j)
-        print(self.y_q_i)
-        print(self.y_q_j)
 
         overlap = self.overlap(self.x_q_i, self.x_q_j, self.y_q_i, self.y_q_j)
 

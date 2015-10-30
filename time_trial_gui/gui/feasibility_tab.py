@@ -1,32 +1,29 @@
-from datetime import datetime
+__author__ = 'daniel'
+
 import pickle
+
+from datetime import datetime
+from rq import Connection, Queue
+from redis import Redis
+
 from gui.trial_detail_widget import EchoTrialDetailsWidget
 from lib.racer_driver import execute_trial
 from lib.trial_jobs import TrialJob, EchoTrialJob
-
-__author__ = 'daniel'
 from gui.experiment_combo_box import ExperimentComboBox
 from gui.new_trial_dialog import NewTrialDialog
 from gui.sqlalchemy_table_model import SQLAlchemyTableModel
 from models.trial import Trial
 from models.experiment import Experiment
 
-from rq import Connection, Queue
-from redis import Redis
-
-
-
-
 from PyQt4 import QtGui, QtCore
 from gui.data_source_model import DataSourceModel
 from gui.plot_style_edit_dialog import PlotStyleEditDialog
 from gui.plotter_widget import PlotterWidget
 
-
-
 from lib.timing_data import TimingData
 from lib.plot import Plot
 from lib.box_test import BoxTest
+
 
 class FeasibilityTab(QtGui.QWidget):
 
@@ -42,12 +39,11 @@ class FeasibilityTab(QtGui.QWidget):
         self.layout = QtGui.QGridLayout()
         self.setLayout(self.layout)
 
-
         ####################
         ## ANALYSIS
         ####################
         self.analysis_box = QtGui.QGroupBox(self, title="Analysis")
-        self.layout.addWidget(self.analysis_box,1,0, 1, 1)
+        self.layout.addWidget(self.analysis_box, 1, 0, 1, 1)
         self.analysis_box_layout = QtGui.QGridLayout(self.analysis_box)
 
         self.analysis_box.setLayout(self.analysis_box_layout)
@@ -60,19 +56,17 @@ class FeasibilityTab(QtGui.QWidget):
         self.shorter_trial_label = QtGui.QLabel("<b>Trial:</b>")
         self.shorter_trial = QtGui.QLabel("[select on experiment tab]")
         self.analysis_data_source_shorter_layout.addWidget(self.shorter_trial_label, 0, 0)
-        self.analysis_data_source_shorter_layout.addWidget(self.shorter_trial, 0, 1)
+        self.analysis_data_source_shorter_layout.addWidget(self.shorter_trial, 0,1)
 
         self.shorter_trial_color_label = QtGui.QLabel("<b>Color:</b>")
         self.shorter_trial_color = QtGui.QLabel()
         self.analysis_data_source_shorter_layout.addWidget(self.shorter_trial_color_label, 1, 0)
         self.analysis_data_source_shorter_layout.addWidget(self.shorter_trial_color, 1, 1)
 
-
         self.shorter_trial_bins_label = QtGui.QLabel("<b>Bins:</b>")
         self.shorter_trial_bins = QtGui.QLabel()
         self.analysis_data_source_shorter_layout.addWidget(self.shorter_trial_bins_label, 2, 0)
         self.analysis_data_source_shorter_layout.addWidget(self.shorter_trial_bins, 2, 1)
-
 
         self.shorter_trial_edit = QtGui.QPushButton("Edit")
         self.shorter_trial_edit.setEnabled(False)
@@ -80,8 +74,6 @@ class FeasibilityTab(QtGui.QWidget):
         self.analysis_data_source_shorter_layout.addWidget(self.shorter_trial_edit, 3, 0, 1, 2)
 
         self.analysis_box_layout.addWidget(self.analysis_data_source_shorter, 0, 0)
-
-
 
         ###  longer trial box
         self.analysis_data_source_longer = QtGui.QGroupBox("Longer Trial")
@@ -98,12 +90,10 @@ class FeasibilityTab(QtGui.QWidget):
         self.analysis_data_source_longer_layout.addWidget(self.longer_trial_color_label, 1, 0)
         self.analysis_data_source_longer_layout.addWidget(self.longer_trial_color, 1, 1)
 
-
         self.longer_trial_bins_label = QtGui.QLabel("<b>Bins:</b>")
         self.longer_trial_bins = QtGui.QLabel()
         self.analysis_data_source_longer_layout.addWidget(self.longer_trial_bins_label, 2, 0)
         self.analysis_data_source_longer_layout.addWidget(self.longer_trial_bins, 2, 1)
-
 
         self.longer_trial_edit = QtGui.QPushButton("Edit")
         self.longer_trial_edit.setEnabled(False)
@@ -111,9 +101,7 @@ class FeasibilityTab(QtGui.QWidget):
         self.analysis_data_source_longer_layout.addWidget(self.longer_trial_edit, 3, 0, 1, 2)
 
 
-
         self.analysis_box_layout.addWidget(self.analysis_data_source_longer, 0, 1)
-
 
 
         #### configuration
@@ -128,7 +116,6 @@ class FeasibilityTab(QtGui.QWidget):
         self.analysis_config_layout.addWidget(self.analysis_type_label, 0, 0)
         self.analysis_config_layout.addWidget(self.analysis_type, 0, 1)
 
-
         self.analysis_lower_quantile_label = QtGui.QLabel("Lower Quantile")
         self.analysis_lower_quantile = QtGui.QLineEdit(text="6")
         self.analysis_config_layout.addWidget(self.analysis_lower_quantile_label, 1, 0)
@@ -139,13 +126,11 @@ class FeasibilityTab(QtGui.QWidget):
         self.analysis_config_layout.addWidget(self.analysis_upper_quantile_label, 2, 0)
         self.analysis_config_layout.addWidget(self.analysis_upper_quantile, 2, 1)
 
-
-
         self.analysis_perfom_button = QtGui.QPushButton("Perform Analysis")
         self.analysis_perfom_button.released.connect(self.perform_analysis)
         self.analysis_config_layout.addWidget(self.analysis_perfom_button, 3, 0, 1, 2)
 
-        self.analysis_box_layout.addWidget(self.analysis_config, 0,2)
+        self.analysis_box_layout.addWidget(self.analysis_config, 0, 2)
 
         # Reset
         self.reset_plot_button = QtGui.QPushButton("Reset Plot")
@@ -160,18 +145,17 @@ class FeasibilityTab(QtGui.QWidget):
         self.analysis_result = QtGui.QLabel()
         self.analysis_result_box_layout.addWidget(self.analysis_result, 0, 0)
 
-        self.analysis_box_layout.addWidget(self.analysis_result_box, 1,2, 1, 1)
+        self.analysis_box_layout.addWidget(self.analysis_result_box, 1, 2, 1, 1)
 
-
-        ### PLotter
+        ### Plotter
         self.plotter = PlotterWidget(self)
-#        self.plotter.set_data_source_model(self.data_source_model)
-        self.analysis_box_layout.addWidget(self.plotter, 2,0,1,3)
+        #self.plotter.set_data_source_model(self.data_source_model)
+        self.analysis_box_layout.addWidget(self.plotter, 2, 0, 1, 3)
 
-#        self.data_source_model.rowsInserted.connect(self.plotter.update_plot)
+        #self.data_source_model.rowsInserted.connect(self.plotter.update_plot)
 
     def reset_plot(self):
-        self.shorter_trial.setText("[seect on experiment tab]")
+        self.shorter_trial.setText("[select on experiment tab]")
         self.shorter_trial_color.setText("")
         self.shorter_trial_bins.setText("")
 
@@ -185,12 +169,12 @@ class FeasibilityTab(QtGui.QWidget):
         self.plotter.reset()
 
     def edit_shorter_trial(self):
-        dialog = PlotStyleEditDialog(plot = self.shorter_plot)
+        dialog = PlotStyleEditDialog(plot=self.shorter_plot)
         dialog.accepted.connect(self.update_plot_settings_view)
         dialog.exec()
 
     def edit_longer_trial(self):
-        dialog = PlotStyleEditDialog(plot = self.longer_plot)
+        dialog = PlotStyleEditDialog(plot=self.longer_plot)
         dialog.accepted.connect(self.update_plot_settings_view)
         dialog.exec()
 
@@ -204,9 +188,6 @@ class FeasibilityTab(QtGui.QWidget):
         if self.longer_plot is not None:
             self.longer_trial_bins.setText(str(self.longer_plot.bins))
             self.longer_trial_color.setText(str(self.longer_plot.color))
-
-
-
 
     def set_shorter(self, trial):
         self.shorter_trial.setText(trial.name)
@@ -237,10 +218,11 @@ class FeasibilityTab(QtGui.QWidget):
         self.longer_trial_edit.setEnabled(True)
         self.update_plot_settings_view()
 
-
     def perform_analysis(self):
         self.plotter.update_plot()
-        box_test = BoxTest(self.shorter, self.longer, float(self.analysis_lower_quantile.text()), float(self.analysis_upper_quantile.text()))
+        box_test = BoxTest(self.shorter, self.longer,
+                           float(self.analysis_lower_quantile.text()),
+                           float(self.analysis_upper_quantile.text()))
         res = box_test.perform()
         self.analysis_result.setText("Are the two distributions distinct?  " + str(res))
         x_box = box_test.x_box()
@@ -248,7 +230,6 @@ class FeasibilityTab(QtGui.QWidget):
 
         self.plotter.plot_canvas.draw_rectangle(x_box[0], 0, x_box[1] - x_box[0], 1e7, fg_color=self.shorter_plot.color, edge_color="black")
         self.plotter.plot_canvas.draw_rectangle(y_box[0], 0, y_box[1] - y_box[0], 1e7, fg_color=self.longer_plot.color, edge_color="black")
-
 
 #    def event_open_data_source_edit(self, index):
 #        dialog = EditDataSourceDialog(index.data(QtCore.Qt.EditRole), self)
@@ -262,7 +243,7 @@ class FeasibilityTab(QtGui.QWidget):
     def event_show_select_file_dialog(self):
         file_dialog = QtGui.QFileDialog()
         file_dialog.setAcceptMode(QtGui.QFileDialog.AcceptOpen)
-        filters = [ "PEM Files (*.pem)", "Any files (*)" ]
+        #filters = ["PEM Files (*.pem)", "Any files (*)"]
         #        file_dialog.fileSelected.connect(self.event_file_selected)
         file_dialog.filesSelected.connect(self.event_files_selected)
         file_dialog.setFileMode(QtGui.QFileDialog.ExistingFiles)
@@ -273,7 +254,7 @@ class FeasibilityTab(QtGui.QWidget):
         for f in file_names:
             self.event_file_selected(f)
 
-    def event_file_selected(self,file_name):
+    def event_file_selected(self, file_name):
         new_data = TimingData()
         new_data.load_from_csv(file_name)
         new_plot = Plot(new_data)
@@ -286,5 +267,3 @@ class FeasibilityTab(QtGui.QWidget):
 
     def add_data_row(self, data):
         pass
-
-

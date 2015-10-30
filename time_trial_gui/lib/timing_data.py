@@ -38,4 +38,3 @@ class TimingData:
 
     def quantile(self, i):
         return filters.PercentileFilter().apply(self, i)
-
