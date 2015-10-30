@@ -188,7 +188,7 @@ class ExperimentsTab(QtGui.QWidget):
             self.trial_status.start_trial_button.setEnabled(False)
             self.trial_status.stop_trial_button.setEnabled(True)
 
-        if self.current_trial.__class__.__name__ in ('HTTPTrial', 'XRuntimeTrialJob'):
+        if self.current_trial.__class__.__name__ in ('HTTPTrial', 'XRuntimeTrial'):
             self.echo_trial_details.hide()
             self.http_trial_details.show()
             self.http_trial_details.request_url.setText(self.current_trial.request_url)

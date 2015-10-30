@@ -7,7 +7,7 @@ from .x_runtime_job import run_x_runtime_job
 
 TRIALS = {'HTTPTrialJob': run_http_trial_job,
           'EchoTrialJob': run_echo_trial_job,
-          'XRunTimeTrialJob': run_x_runtime_job}
+          'XRuntimeTrialJob': run_x_runtime_job}
 
 
 def execute_trial(trial):
