@@ -1,9 +1,8 @@
 __author__ = 'daniel'
 
-from sqlalchemy import Integer, Column, String, ForeignKey, Text, DateTime,Boolean
-from sqlalchemy.orm import  relationship, deferred
+from sqlalchemy import Integer, Column, String, ForeignKey, Text, DateTime, Boolean
+from sqlalchemy.orm import relationship, deferred
 from lib.base import Base
-from models.racer import Racer
 
 
 class Trial(Base):
@@ -35,8 +34,11 @@ class Trial(Base):
 
 
 class EchoTrial(Trial):
+    friendly_name = 'Echo Trial'
+
     __tablename__ = 'echo_trials'
-    __mapper_args__ = {'polymorphic_identity': 'Echo Trial'}
+    __mapper_args__ = {'polymorphic_identity': friendly_name}
+
     id = Column(Integer, ForeignKey('trials.id'), primary_key=True)
     host = Column(String(100))
     port = Column(Integer)
@@ -63,8 +65,10 @@ class EchoTrial(Trial):
 
 
 class HTTPTrial(Trial):
+    friendly_name = 'HTTP Trial'
+
     __tablename__ = 'http_trials'
-    __mapper_args__ = {'polymorphic_identity': 'HTTP Trial'}
+    __mapper_args__ = {'polymorphic_identity': friendly_name}
     id = Column(Integer, ForeignKey('trials.id'), primary_key=True)
     request_url = Column(String(500))
     request = Column(String(50000))
@@ -87,8 +91,29 @@ class HTTPTrial(Trial):
         return x
 
 
+class XRuntimeTrial(Trial):
+    friendly_name = 'X-Runtime Trial'
 
+    __tablename__ = 'x_runtime_trials'
+    __mapper_args__ = {'polymorphic_identity': friendly_name}
 
+    id = Column(Integer, ForeignKey('trials.id'), primary_key=True)
+    request_url = Column(String(500))
+    request = Column(String(50000))
 
+    def duplicate(self):
+        x = XRuntimeTrial()
 
+        #common
+        x.name = self.name
+        x.description = self.description
+        x.core_id = self.core_id
+        x.real_time = self.real_time
+        x.reps = self.reps
+        x.racer = self.racer
+        x.experiment = self.experiment
 
+        x.request_url = self.request_url
+        x.request = self.request
+
+        return x

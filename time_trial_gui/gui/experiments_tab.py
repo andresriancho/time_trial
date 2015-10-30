@@ -6,10 +6,12 @@ from rq import Queue
 from gui.experiment_combo_box import ExperimentComboBox
 from gui.new_trial_dialog import NewTrialDialog
 from gui.sqlalchemy_table_model import SQLAlchemyTableModel
-from gui.trial_detail_widget import EchoTrialDetailsWidget, HttpTrialDetailsWidget, RacerDetailsWidget, \
-    TrialStatusWidget
+from gui.trial_detail_widget import (EchoTrialDetailsWidget,
+                                     HttpTrialDetailsWidget,
+                                     RacerDetailsWidget,
+                                     TrialStatusWidget)
 from lib.racer_driver.execute_trial import execute_trial
-from lib.trial_jobs import EchoTrialJob, HTTPTrialJob
+from lib.trial_jobs import job_factory
 
 from models.experiment import Experiment
 from models.trial import Trial
@@ -19,7 +21,7 @@ __author__ = 'daniel'
 
 class ExperimentsTab(QtGui.QWidget):
 
-    def __init__(self, session = None, parent = None):
+    def __init__(self, session=None, parent=None):
         super(ExperimentsTab, self).__init__(parent)
         self.session = session
         self.redis_conn = Redis()
@@ -186,17 +188,17 @@ class ExperimentsTab(QtGui.QWidget):
             self.trial_status.start_trial_button.setEnabled(False)
             self.trial_status.stop_trial_button.setEnabled(True)
 
-        if self.current_trial.__class__.__name__ == "HTTPTrial":
+        if self.current_trial.__class__.__name__ in ('HTTPTrial', 'XRuntimeTrialJob'):
             self.echo_trial_details.hide()
             self.http_trial_details.show()
             self.http_trial_details.request_url.setText(self.current_trial.request_url)
-            self.http_trial_details.type.setText("HTTP Trial")
+            self.http_trial_details.type.setText(self.current_trial.friendly_name)
 
         else:
             self.echo_trial_details.show()
             self.http_trial_details.hide()
             self.echo_trial_details.delay.setText(str(self.current_trial.delay))
-            self.echo_trial_details.type.setText("Echo Trial")
+            self.echo_trial_details.type.setText(self.current_trial.friendly_name)
 
         self.http_trial_details.name.setText(self.current_trial.name)
         self.http_trial_details.description.setText(self.current_trial.description)
@@ -242,24 +244,13 @@ class ExperimentsTab(QtGui.QWidget):
         q = Queue(self.current_trial.racer.hostname, connection=self.redis_conn)
         t = self.current_trial
 
-        job = None
-        if self.current_trial.__class__.__name__ == "HTTPTrial":
-            job = HTTPTrialJob()
-            job.request = t.request
-            job.request_url = t.request_url
-        else:
-            job = EchoTrialJob()
-            job.target_host = t.host
-            job.target_port = t.port
-            job.delay = t.delay
-
+        job = job_factory(self.current_trial)
         job.reps = t.reps
         job.core_affinity = t.core_id
         if t.real_time:
             job.real_time = 1
         else:
             job.real_time = 0
-
 
         res = q.enqueue_call(func=execute_trial, args=(job,), result_ttl=-1, timeout=1000000)
         self.current_trial.job = res.get_id()

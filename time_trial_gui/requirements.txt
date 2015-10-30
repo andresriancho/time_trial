@@ -4,3 +4,4 @@ numpy
 rq_dashboard
 sqlalchemy
 pygments
+requests

@@ -1,13 +1,10 @@
+from PyQt4 import QtGui, QtCore
 from gui.http_request_text_edit import HttpRequestTextEdit
 from models.racer import Racer
-from models.trial import Trial, EchoTrial, HTTPTrial
-
+from models.trial import EchoTrial, HTTPTrial, XRuntimeTrial
 
 __author__ = 'daniel'
 
-
-
-from PyQt4 import QtGui, QtCore
 
 class NewTrialDialog(QtGui.QDialog):
     init_done = False
@@ -22,30 +19,27 @@ class NewTrialDialog(QtGui.QDialog):
         self.layout = QtGui.QGridLayout()
         self.setLayout(self.layout)
 
-        top_layout =  QtGui.QFormLayout()
+        top_layout = QtGui.QFormLayout()
         self.type = QtGui.QComboBox()
         self.type.currentIndexChanged.connect(self.trial_type_changed)
-        self.type.addItem("HTTP Trial", "HTTP Trial")
+        self.type.addItem('HTTP Trial', 'HTTP Trial')
+        self.type.addItem('X-Runtime Trial', 'X-Runtime Trial')
         self.type.addItem("Echo Trial", "Echo Trial")
         top_layout.addRow("Trial Type", self.type)
 
-
-        self.layout.addLayout(top_layout,0,0,1,2)
+        self.layout.addLayout(top_layout, 0, 0, 1, 2)
 
         ## GENERAL
-
         general_group = QtGui.QGroupBox("General Settings")
         general_group_layout = QtGui.QFormLayout()
         general_group.setLayout(general_group_layout)
-
-
 
         self.name = QtGui.QLineEdit()
         if self.trial is not None: self.name.setText(trial.name)
         general_group_layout.addRow("Name", self.name)
 
         self.reps = QtGui.QLineEdit()
-        if self.trial is not None:  self.reps.setText(str(trial.reps))
+        if self.trial is not None: self.reps.setText(str(trial.reps))
         general_group_layout.addRow("Repetitions", self.reps)
 
         self.description = QtGui.QPlainTextEdit()
@@ -56,7 +50,7 @@ class NewTrialDialog(QtGui.QDialog):
         general_group_layout.addRow("Description", self.description)
 
 
-        self.layout.addWidget(general_group,1,0)
+        self.layout.addWidget(general_group, 1, 0)
 
         racer_group = QtGui.QGroupBox("Racer Settings")
         racer_group_layout = QtGui.QFormLayout()
@@ -83,8 +77,7 @@ class NewTrialDialog(QtGui.QDialog):
         if self.trial is not None: self.real_time.setCurrentIndex(self.real_time.findData(bool(self.trial.real_time)))
         racer_group_layout.addRow("Real-Time Scheduling", self.real_time)
 
-        self.layout.addWidget(racer_group, 2,0)
-
+        self.layout.addWidget(racer_group, 2, 0)
 
         ## ECHO
         self.echo_group = QtGui.QGroupBox("Echo-Specific Settings")
@@ -101,22 +94,19 @@ class NewTrialDialog(QtGui.QDialog):
         echo_group_layout.addRow("Delay (ns)", self.delay)
 
         if self.trial is not None and self.trial.discriminator == "Echo Trial":
-            self.type.setCurrentIndex(self.type.findData("Echo Trial"))
-            self.type.setEnabled(False) # we don't allow chanigng the type when editing
+            self.type.setCurrentIndex(self.type.findData(self.trial.discriminator))
+            self.type.setEnabled(False) # we don't allow changing the type when editing
             self.host.setText(self.trial.host)
             self.port.setText(str(self.trial.port))
             self.delay.setText(str(self.trial.delay))
 
-
-        self.layout.addWidget(self.echo_group,1,1,2,1)
+        self.layout.addWidget(self.echo_group, 1, 1, 2, 1)
         self.echo_group.hide()
-
 
         ## HTTP
         self.http_group = QtGui.QGroupBox("HTTP-Specific Settings")
         http_group_layout = QtGui.QFormLayout()
         self.http_group.setLayout(http_group_layout)
-
 
         if self.trial is not None and self.trial.discriminator == "Echo Trial":
             self.echo_group.show()
@@ -125,19 +115,18 @@ class NewTrialDialog(QtGui.QDialog):
             self.echo_group.hide()
             self.http_group.show()
 
-
         self.request_url = QtGui.QLineEdit()
         self.request_url.setMinimumWidth(400)
         http_group_layout.addRow("Request URL", self.request_url)
-        http_group_layout.addRow("",QtGui.QLabel(text="<i>(e.g., https://www.example.com:43562)</i>"))
+        http_group_layout.addRow("", QtGui.QLabel(text="<i>(e.g., https://www.example.com:43562)</i>"))
 
         self.http_request = HttpRequestTextEdit(self)
-        http_group_layout.addRow("HTTP request",self.http_request)
+        http_group_layout.addRow("HTTP request", self.http_request)
 
-        self.layout.addWidget(self.http_group, 1,1, 2,1)
+        self.layout.addWidget(self.http_group, 1, 1, 2, 1)
 
-        if self.trial is not None and self.trial.discriminator == "HTTP Trial":
-            self.type.setCurrentIndex(self.type.findData("HTTP Trial"))
+        if self.trial is not None and self.trial.discriminator in ('HTTP Trial', 'X-Runtime Trial'):
+            self.type.setCurrentIndex(self.type.findData(self.trial.discriminator))
             self.type.setEnabled(False) # we don't allow chanigng the type when editing
             self.request_url.setText(self.trial.request_url)
             self.http_request.setPlainText(self.trial.request)
@@ -154,37 +143,34 @@ class NewTrialDialog(QtGui.QDialog):
         button_box.rejected.connect(self.cancel)
         button_box.accepted.connect(self.store)
 
-        self.layout.addWidget(button_box,3,0, 1, 2)
+        self.layout.addWidget(button_box, 3, 0, 1, 2)
         self.init_done = True
 
     def trial_type_changed(self, index):
         if self.init_done:
 
-            if self.type.currentText() == "HTTP Trial":
+            if self.type.currentText() in ('HTTP Trial', 'X-Runtime Trial'):
                 self.echo_group.hide()
                 self.http_group.show()
             else:
                 self.echo_group.show()
                 self.http_group.hide()
 
-
-
-
     def store(self):
-
         ## init for editing
         trial = self.trial
 
         # only init a new Trial object when not editing
         if trial is None:
-            if self.type.currentText() == "HTTP Trial":
+            if self.type.currentText() == 'HTTP Trial':
                 trial = HTTPTrial()
+            elif self.type.currentText() == 'X-Runtime Trial':
+                trial = XRuntimeTrial()
             else:
                 trial = EchoTrial()
 
-
         #store type-specific data
-        if self.type.currentText() == "HTTP Trial":
+        if self.type.currentText() in ('HTTP Trial', 'X-Runtime Trial'):
             trial.request_url = self.request_url.text()
             trial.request = self.http_request.toPlainText()
         else:
@@ -198,7 +184,7 @@ class NewTrialDialog(QtGui.QDialog):
 
         trial.core_id = int(self.core_id.text())
         trial.real_time = self.real_time.itemData(self.real_time.currentIndex(), QtCore.Qt.UserRole)
-        racer = self.session.query(Racer).filter_by(hostname = self.racer.currentText()).first()
+        racer = self.session.query(Racer).filter_by(hostname=self.racer.currentText()).first()
 
         trial.racer = racer
         trial.experiment = self.experiment
