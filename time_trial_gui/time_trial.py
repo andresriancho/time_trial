@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 import sys
+import logging
+import sip
 
 from PyQt4 import QtGui, QtCore
-import sip
 from sqlalchemy.orm import sessionmaker
 from gui.experiments_tab import ExperimentsTab
 
 from gui.feasibility_tab import FeasibilityTab
 from gui.plotter_tab import PlotterTab
 
-import logging
 from sqlalchemy import create_engine
 from gui.settings_tab import SettingsTab
 from lib.rq_result_processor import RqResultsProcessor
@@ -17,9 +17,6 @@ from models.racer import Racer
 from models.trial import Trial
 from models.experiment import Experiment
 from lib.base import Base
-
-
-
 
 progname = "Time Trial"
 progversion = "0.1"
@@ -72,8 +69,6 @@ class ApplicationWindow(QtGui.QMainWindow):
         ################
         #  M E N U
         ################
-
-
         self.file_menu = QtGui.QMenu('&File', self)
         self.file_menu.addAction('&Quit', self.fileQuit,
                                  QtCore.Qt.CTRL + QtCore.Qt.Key_Q)

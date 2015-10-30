@@ -34,12 +34,12 @@ class ExperimentsTab(QtGui.QWidget):
         # experiments
         self.experiment_box = QtGui.QGroupBox(self, title="Experiments")
         self.experiment_box.setSizePolicy(QtGui.QSizePolicy.Minimum,QtGui.QSizePolicy.Minimum)
-        self.layout.addWidget(self.experiment_box,0,0)
+        self.layout.addWidget(self.experiment_box, 0, 0)
         self.experiment_box_layout = QtGui.QGridLayout(self.experiment_box)
         self.experiment_box.setLayout(self.experiment_box_layout)
 
 
-        self.experiment_list = ExperimentComboBox(session = session)
+        self.experiment_list = ExperimentComboBox(session=session)
         self.experiment_list.currentIndexChanged.connect(self.update_current_experiment)
         self.experiment_box_layout.addWidget(self.experiment_list, 0, 0)
 
@@ -243,7 +243,7 @@ class ExperimentsTab(QtGui.QWidget):
         t = self.current_trial
 
         job = None
-        if(self.current_trial.__class__.__name__ == "HTTPTrial"):
+        if self.current_trial.__class__.__name__ == "HTTPTrial":
             job = HTTPTrialJob()
             job.request = t.request
             job.request_url = t.request_url
@@ -274,7 +274,7 @@ class ExperimentsTab(QtGui.QWidget):
         self.trial_table.resizeColumnsToContents()
 
     def update_trial_table(self):
-        self.trial_table_model.setFilter(Trial.experiment==self.current_experiment)
+        self.trial_table_model.setFilter(Trial.experiment == self.current_experiment)
         self.trial_table.resizeColumnsToContents()
 
     def new_trial(self):

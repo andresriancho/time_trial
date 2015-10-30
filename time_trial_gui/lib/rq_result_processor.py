@@ -20,14 +20,16 @@ class RqResultsProcessor(threading.Thread):
         redis_conn = Redis()
         # get all
         while True:
-            incomplete = self.session.query(Trial).filter(Trial.end_date is None).filter(Trial.start_date is not None).all()
+            # IMPORTANT! Do not change these == and != for "is None" and "is not None"
+            incomplete = self.session.query(Trial).filter(Trial.end_date==None).filter(Trial.start_date!=None).all()
+
             for t in incomplete:
+                print('Querying queue for Job %s (%s)' % (t.name, t.job))
+
                 try:
                     job = Job.fetch(t.job, connection=redis_conn)
-                except:
-                    print("Exception occurred. Moving on.")
-                    sleep(1)
-                    continue
+                except Exception as e:
+                    print("Exception '%s' occurred. Moving on." % e)
 
                 if job.result is not None:
                     print("Result for " + t.name + " found.")
@@ -37,6 +39,8 @@ class RqResultsProcessor(threading.Thread):
                     self.session.add(t)
                     self.session.commit()
                     self.session.expire(t)
+                else:
+                    print("No result for " + t.name + " found.")
 
             if self.stopped:
                 self.session.close()

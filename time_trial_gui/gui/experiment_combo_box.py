@@ -3,6 +3,7 @@ from models.experiment import Experiment
 
 __author__ = 'daniel'
 
+
 class ExperimentComboBox(QtGui.QComboBox):
 
     def __init__(self, session = None, parent = None):
