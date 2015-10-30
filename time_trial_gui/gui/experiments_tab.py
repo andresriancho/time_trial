@@ -8,7 +8,7 @@ from gui.new_trial_dialog import NewTrialDialog
 from gui.sqlalchemy_table_model import SQLAlchemyTableModel
 from gui.trial_detail_widget import EchoTrialDetailsWidget, HttpTrialDetailsWidget, RacerDetailsWidget, \
     TrialStatusWidget
-from lib.racer_driver import execute_trial
+from lib.racer_driver.execute_trial import execute_trial
 from lib.trial_jobs import EchoTrialJob, HTTPTrialJob
 
 from models.experiment import Experiment
@@ -16,10 +16,8 @@ from models.trial import Trial
 
 __author__ = 'daniel'
 
+
 class ExperimentsTab(QtGui.QWidget):
-
-
-
 
     def __init__(self, session = None, parent = None):
         super(ExperimentsTab, self).__init__(parent)
@@ -57,10 +55,6 @@ class ExperimentsTab(QtGui.QWidget):
 
         self.data_box_layout = QtGui.QGridLayout(self.data_box)
         self.data_box.setLayout(self.data_box_layout)
-
-
-
-
 
         self.trial_table = QtGui.QTableView(self)
         #        self.trial_table.doubleClicked.connect(self.edit_racer)
@@ -123,8 +117,6 @@ class ExperimentsTab(QtGui.QWidget):
     def display_context_menu(self, pos):
         index = self.trial_table.indexAt(pos)
 
-
-
         self. menu = QtGui.QMenu()
 
         self.edit_action = self.menu.addAction("Edit")
@@ -161,15 +153,13 @@ class ExperimentsTab(QtGui.QWidget):
     def setAsLongerTrial(self):
         self.emit(QtCore.SIGNAL("longer_trial_set(PyQt_PyObject)"), self.current_trial)
 
-
     def update_current_experiment(self, index):
         self.current_experiment = self.experiment_list.currentItem()
         #self.experiment_name.setText(self.current_experiment.name)
         self.update_trial_table()
 #        self.trial_table.setSelection()
 
-
-    def update_current_trial(self,x,y):
+    def update_current_trial(self, x, y):
         self.current_trial = self.trial_table_selection_model.currentIndex().data(QtCore.Qt.EditRole)
         if len(x.indexes()) == 0:
             self.trial_status.start_trial_button.setEnabled(False)
@@ -184,21 +174,19 @@ class ExperimentsTab(QtGui.QWidget):
         dialog.accepted.connect(self.trial_table_model.refresh)
         dialog.exec()
 
-
-
     def update_trial_details(self):
         self.session.refresh(self.current_trial)
         self.trial_status.edit_trial_button.setEnabled(True)
         self.trial_status.refresh_trial_button.setEnabled(True)
 
-        if self.current_trial.start_date == None:
+        if self.current_trial.start_date is None:
             self.trial_status.start_trial_button.setEnabled(True)
             self.trial_status.stop_trial_button.setEnabled(False)
         else:
             self.trial_status.start_trial_button.setEnabled(False)
             self.trial_status.stop_trial_button.setEnabled(True)
 
-        if(self.current_trial.__class__.__name__ == "HTTPTrial"):
+        if self.current_trial.__class__.__name__ == "HTTPTrial":
             self.echo_trial_details.hide()
             self.http_trial_details.show()
             self.http_trial_details.request_url.setText(self.current_trial.request_url)
@@ -226,9 +214,6 @@ class ExperimentsTab(QtGui.QWidget):
         except:
             self.trial_status.job_status.setText("not scheduled")
 
-
-
-
     def stop_trial(self):
         self.current_trial.start_date = None
         self.current_trial.end_date = None
@@ -239,7 +224,6 @@ class ExperimentsTab(QtGui.QWidget):
         job.cancel()
         self.update_trial_details()
         self.trial_table.resizeColumnsToContents()
-
 
     def delete_trial(self):
         reply = QtGui.QMessageBox.question(self, "Confirm", "Really delete the selected trial?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
@@ -289,18 +273,14 @@ class ExperimentsTab(QtGui.QWidget):
         self.update_trial_details()
         self.trial_table.resizeColumnsToContents()
 
-
     def update_trial_table(self):
         self.trial_table_model.setFilter(Trial.experiment==self.current_experiment)
         self.trial_table.resizeColumnsToContents()
-
-
 
     def new_trial(self):
         dialog = NewTrialDialog(self.session, experiment=self.current_experiment, parent=self)
         dialog.accepted.connect(self.trial_table_model.refresh)
         dialog.exec()
-
 
     def new_experiment(self):
         dialog = QtGui.QInputDialog(self)
