@@ -32,7 +32,7 @@ def run_x_runtime_job(trial):
 
     output = []
 
-    for _ in range(trial.reps):
+    for i in range(trial.reps):
         try:
             response = session.send(prepared_request, verify=False)
         except Exception as e:
@@ -44,7 +44,7 @@ def run_x_runtime_job(trial):
                 print('The remote server did NOT send X-Runtime header')
                 continue
             else:
-                print('X-Runtime: %s' % x_runtime)
+                print('[%s/%s] X-Runtime: %s' % (i, trial.reps, x_runtime))
 
             # First part before the dot is seconds
             seconds = x_runtime.split('.')[0]
