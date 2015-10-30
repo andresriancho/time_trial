@@ -27,7 +27,7 @@ def run_x_runtime_job(trial):
     session = requests.Session()
     url = trial.request_url + path
 
-    raw_request = requests.Request(verb, url, data=body, headers=headers)
+    raw_request = requests.Request(verb, url, data=body, headers=dict(headers))
     prepared_request = raw_request.prepare()
 
     output = []
