@@ -8,16 +8,24 @@ class BoxTest:
         self.i = i
         self.j = j
 
-    def perform(self):
         # compute quantiles. Not using ranges since they are only overhead.
         self.x_q_i = self.data_x.quantile(self.i)
         self.x_q_j = self.data_x.quantile(self.j)
         self.y_q_i = self.data_y.quantile(self.i)
         self.y_q_j = self.data_y.quantile(self.j)
 
-        overlap = self.overlap(self.x_q_i, self.x_q_j, self.y_q_i, self.y_q_j)
+    def perform(self):
+        return self.are_distinct() and self.x_q_j < self.y_q_i
 
-        return not overlap and self.x_q_j < self.y_q_i
+    def are_distinct(self):
+        overlap = self.overlap(self.x_q_i, self.x_q_j, self.y_q_i, self.y_q_j)
+        return not overlap
+
+    def get_lowest(self):
+        if self.x_q_j < self.y_q_i:
+            return self.data_y
+
+        return self.data_x
 
     def x_box(self):
         return [self.x_q_i, self.x_q_j]

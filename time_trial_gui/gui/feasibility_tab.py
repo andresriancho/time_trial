@@ -30,7 +30,7 @@ class FeasibilityTab(QtGui.QWidget):
     longer_plot = None
     shorter_plot = None
 
-    def __init__(self, session = None, parent = None):
+    def __init__(self, session=None, parent=None):
         super(FeasibilityTab, self).__init__(parent)
         self.session = session
 
