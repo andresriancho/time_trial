@@ -1,3 +1,4 @@
+import pprint
 import subprocess
 
 from .http_utils import ParseException, parse_request
@@ -7,7 +8,7 @@ CPP_HTTP_TIMING_EXECUTABLE = '../racer/bin/run_http_timing_client'
 
 def run_http_trial_job(trial):
     print("Executing HTTP Trial...")
-    print(repr(trial.request))
+    pprint.pprint(trial.request)
 
     try:
         verb, path, version, body, headers = parse_request(bytes(trial.request,"iso-8859-1"))
@@ -20,5 +21,12 @@ def run_http_trial_job(trial):
            str(trial.reps)]
     cmd.extend(headers)
 
-    print("Running %s, args %s" % (CPP_HTTP_TIMING_EXECUTABLE, cmd))
-    return subprocess.check_output(cmd)
+    print("Running %s with arguments:" % CPP_HTTP_TIMING_EXECUTABLE)
+    for arg in cmd[1:]:
+        print('%s' % arg)
+    output = subprocess.check_output(cmd)
+
+    print('Trial output:')
+    print(output)
+    
+    return output
